@@ -1,14 +1,33 @@
-; IntelliJ on Notebooks (Especially Surface Pro 4/5)
-; Remaps AppsKey (aka RightClick-Key) to 3 different Functions
-; Long-Press: Control as there might not be a control on the right side
+; SurfaceTouchKeyboardMappingsForIntelliJAHK
+;
+; Useful for IntelliJ on Notebooks (Especially Surface Pro 4/5)
+; Remaps the AppsKey (aka RightClick-Key or Menu-Key) to 3 different Functions
+; Long-Press: "Control-Key" because there no control-key on the right side
 ; Single-Press: Normal AppKey-Functions
-; Double-Press: IntelliJ CommentOut which needs the NumpadDiv. 
+; Double-Press: IntelliJ Comment Out Code which normally needs the NumpadDiv. 
 ;				(Todo: Combine with Shift at your leisure.)
 ; Press CapsLock: 
-
-; Bug: CTRL-State hängt nach Appskey, wenn darüber (rechtsklickmenü) fenster geöffnet wird.
+;				Peek through the current window which becomes transparent and you can even click through
+; Known Bugs: CTRL-State hangs after Appskey, if a window is opened via the app-menu.
 
 ; Thanks to https://autohotkey.com/boards/viewtopic.php?t=8267
+; 
+; ©2019 Thorben Weber
+
+;    This program is free software: you can redistribute it and/or modify
+;    it under the terms of the GNU General Public License as published by
+;    the Free Software Foundation, either version 3 of the License, or
+;    (at your option) any later version.
+;
+;    This program is distributed in the hope that it will be useful,
+;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;    GNU General Public License for more details.
+;
+;    You should have received a copy of the GNU General Public License
+;    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 
 SetCapsLockState, AlwaysOff
 
@@ -26,17 +45,18 @@ $AppsKey::
 			Send {AppsKey} 
 		
 		else ;;; Double press
-		
-		; For Send {^NumpadDiv} to work in IntelliJ
-		; AHK would need to be run in Admin-Mode
-		
-		Send {Control down}
-		Send {NumpadDiv}
-		Send {Control up}
+		; For directly Sending {^NumpadDiv} to work in IntelliJ
+		; AHK would need to be run in Admin-Mode 
+			Send {Control down}
+			Send {NumpadDiv}
+			Send {Control up}
 		
 	}
+	
 	KeyWait, AppsKey
+	
 return
+
 
 $+AppsKey::
 		Send {Shift down}
