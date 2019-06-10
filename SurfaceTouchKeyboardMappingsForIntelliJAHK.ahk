@@ -19,7 +19,8 @@
 ;  * Peek through the current window which becomes transparent and you can even click through  
 ;  
 ; # Known Bugs: 
-; CTRL-State hangs sometimes after Appskey, if a window is opened via the app-menu.  
+; Double-Press sends unintended keydown.
+; Shift + Appkey-Doublepress only works with rshift.
 ;  
 ; Thanks to https://autohotkey.com/boards/viewtopic.php?t=8267
 ; 
@@ -38,48 +39,65 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+global shiftdown := false
+
+$+AppsKey::
 $AppsKey::
+	
 	KeyWait, AppsKey, T0.1
 	
-	if (ErrorLevel) ;;; long press
+	if (ErrorLevel){ ;;; long press
 		;Function1
 		Send {Control down} 
-
+		
+	}
 	else {
 		KeyWait, AppsKey, D T0.1
 
-		if (ErrorLevel) ;;; Single press
+		if (ErrorLevel){ ;;; Single press
 			;Function2
-			Send {AppsKey} 
-		
-		else ;;; Double press
-			;Function 3
+			Send {AppsKey}
 			
-			Send {Control down}
-			Send {NumpadDiv}
-			Send {Control up}
-			; NB: For directly Sending {^NumpadDiv} to work in 
-			; IntelliJ Autohotkey would need to be run in Admin-Mode 
-		
+		}
+		else { ;;; Double press
+			;Function 3
+			global shiftdown
+			if (!shiftdown) {
+				Send {Control down}
+				Send {NumpadDiv}
+				Send {Control up}
+				; NB: For directly Sending {^NumpadDiv} to work in 
+				; IntelliJ Autohotkey would need to be run in Admin-Mode
+				}
+			else {
+				Send {shift down}
+				Send {Control down}
+				Send {NumpadDiv}
+				Send {Control up}		 
+				Send {shift up}
+			}
+		}
 	}
 	
-	KeyWait, AppsKey, D T0.1
+	KeyWait, AppsKey ; release
+	Send {Control up} ;cleanup
 	
 return
 
-; Peek hrough Window function
-SetCapsLockState, AlwaysOff
-$+AppsKey::
-		Send {Shift down}
-		Send {Control down}
-		Send {NumpadDiv}
-		Send {Control up}		 
-		Send {Shift up}
+; Getkeystate("shift","P") did not work for me (probably due to threading)
+~shift::
+	global shiftdown
+	shiftdown := true
+return
+~shift up::
+	global shiftdown
+	shiftdown := false
 return
 
-
-
-
+	
+	
+; Peek hrough Window function
+SetCapsLockState, AlwaysOff
 CapsLock::
 	WinGet, currentWindow, ID, A
 	WinSet, ExStyle, +0x80020, ahk_id %currentWindow% ; Mouse-Click-TRANSPARENCY on
